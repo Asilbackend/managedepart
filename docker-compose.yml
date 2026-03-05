@@ -1,0 +1,110 @@
+services:
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: apps/api-gateway/Dockerfile
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./apps/api-gateway/.env
+    depends_on:
+      - auth
+      - social-assistances
+      - protection-orders
+    restart: always
+    networks:
+      - microservice-network
+
+
+  auth:
+    build:
+      context: .
+      dockerfile: apps/auth/Dockerfile
+    container_name: auth
+    env_file:
+      - ./apps/auth/.env
+    depends_on:
+      - auth-db
+    restart: always
+    networks:
+      - microservice-network
+
+
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    restart: always
+    env_file:
+      - ./apps/auth/.env
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+    networks:
+      - microservice-network
+
+
+
+  social-assistances:
+    build:
+      context: .
+      dockerfile: apps/social-assistances/Dockerfile
+    container_name: social-assistances
+    env_file:
+      - ./apps/social-assistances/.env
+    depends_on:
+      - social-db
+    restart: always
+    networks:
+      - microservice-network
+
+
+  social-db:
+    image: postgres:16
+    container_name: social-db
+    restart: always
+    env_file:
+      - ./apps/social-assistances/.env
+    volumes:
+      - social-db-data:/var/lib/postgresql/data
+    networks:
+      - microservice-network
+
+
+
+  protection-orders:
+    build:
+      context: .
+      dockerfile: apps/protection-orders/Dockerfile
+    container_name: protection-orders
+    env_file:
+      - ./apps/protection-orders/.env
+    depends_on:
+      - orders-db
+    restart: always
+    networks:
+      - microservice-network
+
+
+  orders-db:
+    image: postgres:16
+    container_name: orders-db
+    restart: always
+    env_file:
+      - ./apps/protection-orders/.env
+    volumes:
+      - orders-db-data:/var/lib/postgresql/data
+    networks:
+      - microservice-network
+
+
+
+networks:
+  microservice-network:
+    driver: bridge
+
+
+volumes:
+  auth-db-data:
+  social-db-data:
+  orders-db-data:
