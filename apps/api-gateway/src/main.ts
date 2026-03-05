@@ -4,6 +4,7 @@ import { JwtAuthGuard } from './security/jwt-auth.guard';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AuthorizationGuard } from './security/authorization.guard';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
@@ -45,7 +46,11 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(process.env.port ?? 3000);
-  console.log('listen:' + process.env.port);
+  const configService = app.get(ConfigService);
+
+  const port = configService.get<number>('PORT', 0);
+
+  await app.listen(port);
+  console.log('listen:' + port);
 }
 bootstrap();
